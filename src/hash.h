@@ -5,6 +5,6 @@
 #include <stdlib.h>
 
 /* Non cryptographically secure hash */
-uint64_t simpleHash(void* data, size_t datalen);
+uint64_t simpleHash(uint64_t seed, void *data, size_t datalen);
 
 #endif /* HASH_H */

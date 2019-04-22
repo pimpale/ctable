@@ -3,12 +3,20 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "vector.h"
+#include <stdbool.h>
+
+typedef struct {
+  void *key;
+  size_t keylen;
+  void *value;
+  size_t valuelen;
+  bool existent;
+} Mapping;
 
 // Do not manually modify
 typedef struct {
   // The mappings in the table
-  Vector mappings;
+  Mapping* mappings;
   // Number of mappings in mappings
   size_t mappingCount;
   // Total number of spots for mappings

@@ -1,4 +1,4 @@
-TARGET_EXEC ?= cvec
+TARGET_EXEC ?= ctable
 
 BUILD_DIR ?= ./obj
 SRC_DIRS ?= ./src
