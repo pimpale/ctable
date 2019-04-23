@@ -7,7 +7,7 @@
 #include "table.h"
 
 #define LOAD_FACTOR 0.2f
-#define INITIAL_CAPACITY 2
+#define INITIAL_CAPACITY 2000
 #define EXPAND_FACTOR 2.0f
 
 /* hash function using linear probing */
@@ -16,7 +16,7 @@ size_t hashTable(void *data, size_t datalen, size_t bucketCount,
 
 size_t hashTable(void *data, size_t datalen, size_t bucketCount,
                  uint32_t attempt) {
-  return ((simpleHash(attempt, data, datalen)) % bucketCount);
+  return simpleHash(attempt, data, datalen) % bucketCount;
 }
 
 /* Initializes a mapping data structure */
@@ -26,6 +26,7 @@ void initMapping(Mapping *mapping, void *key, size_t keylen, void *value,
 /* Frees a mapping data structure */
 void freeMapping(Mapping *mapping);
 
+//copies data to mapping pointer
 void initMapping(Mapping *mapping, void *key, size_t keylen, void *value,
                  size_t valuelen) {
   mapping->existent = true;
@@ -106,7 +107,7 @@ size_t getMappingIndexTable(Table *table, void *key, size_t keylen);
 
 size_t getMappingIndexTable(Table *table, void *key, size_t keylen) {
   uint32_t attempt = 0;
-  // Linear probing algorithm
+  // Double hashing algorithm
   while (true) {
     // Calculate index, increment attempt
     size_t index = hashTable(key, keylen, table->mappingCapacity, attempt);
@@ -117,6 +118,7 @@ size_t getMappingIndexTable(Table *table, void *key, size_t keylen) {
     }
     // If the mapping exists
     else {
+      printf("mapping %zu exists\n", index);
       // If the keys match
       if (keylen == m.keylen && memcmp(m.key, key, keylen) == 0) {
         return (index);
@@ -161,6 +163,7 @@ void delTable(Table *table, void *key, size_t keylen) {
   if (m->existent) {
     freeMapping(m);
   }
+  printf("mapping successfully inserted");
 }
 
 size_t getValueLengthTable(Table *table, void *key, size_t keylen) {

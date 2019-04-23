@@ -5,7 +5,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-typedef struct {
+typedef struct __attribute__((__packed__)) {
   void *key;
   size_t keylen;
   void *value;
