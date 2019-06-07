@@ -18,16 +18,19 @@ int main() {
     putTable(&t, key, keylen, value, valuelen);
   }
 
-  /*
   for (int i = 300; i < 500; i++) {
+    // Determine key
+    char key[400];
+    snprintf(key, 400, "qwertyuiop%d", i);
+    size_t keylen = strlen(key) + 1;
+    printf("attempting to retrieve value at key: %s\n", key);
+
     // First query size
-    int* key = &i;
-    size_t keylen = sizeof(i);
     size_t valuelen = getValueLengthTable(&t, &key, keylen);
     char* value = malloc(valuelen);
     getTable(&t, key, keylen, value, valuelen);
+    printf("retrieved key value pair %s : %s\n", key, value);
   }
-  */
-  //freeTable(&t);
+  freeTable(&t);
 }
 

@@ -26,7 +26,11 @@ void initMapping(Mapping *mapping, void *key, size_t keylen, void *value,
 /* Frees a mapping data structure */
 void freeMapping(Mapping *mapping);
 
-//copies data to mapping pointer
+/* Resizes table to the given number of spots, and then attempts to fit all
+ * hashes inside */
+void resizeTable(Table *table, size_t newCapacity);
+
+/* copies data to mapping pointer */
 void initMapping(Mapping *mapping, void *key, size_t keylen, void *value,
                  size_t valuelen) {
   mapping->existent = true;
@@ -66,17 +70,19 @@ float currentLoadTable(Table *table) {
   return (((float)table->mappingCount) / ((float)table->mappingCapacity));
 }
 
+// Creates table with default initial capacity
 void initTable(Table *table) { initTableCapacity(table, INITIAL_CAPACITY); }
 
+// Initializes the memory pointed to as a table with given capacity
 void initTableCapacity(Table *table, size_t capacity) {
   table->mappingCount = 0;
   table->mappingCapacity = capacity;
-  // Initialize vector
-  table->mappings = calloc(0, capacity * sizeof(Mapping));
+  // Initialize array to zero
+  size_t mappingLength = capacity * sizeof(Mapping);
+  table->mappings = malloc(mappingLength);
+  memset(table->mappings, 0, mappingLength);
 }
 
-// Creates new table, inserts old stuff, deletes this table. Expensive, avoid
-// this operation
 void resizeTable(Table *table, size_t newCapacity) {
   Table newTable;
   initTableCapacity(&newTable, newCapacity);
@@ -118,7 +124,6 @@ size_t getMappingIndexTable(Table *table, void *key, size_t keylen) {
     }
     // If the mapping exists
     else {
-      printf("mapping %zu exists\n", index);
       // If the keys match
       if (keylen == m.keylen && memcmp(m.key, key, keylen) == 0) {
         return (index);
@@ -173,7 +178,6 @@ size_t getValueLengthTable(Table *table, void *key, size_t keylen) {
   return (m->existent ? m->valuelen : 0);
 }
 
-// TODO adapt to hash
 void getTable(Table *table, void *key, size_t keylen, void *value,
               size_t valuelen) {
   size_t index = getMappingIndexTable(table, key, keylen);
