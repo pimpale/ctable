@@ -18,6 +18,8 @@ int main() {
     putTable(&t, key, keylen, value, valuelen);
   }
 
+  puts("ok");
+
   for (int i = 300; i < 500; i++) {
     // Determine key
     char key[400];

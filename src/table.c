@@ -6,9 +6,8 @@
 #include "hash.h"
 #include "table.h"
 
-#define LOAD_FACTOR 0.2f
-#define INITIAL_CAPACITY 2000
-#define EXPAND_FACTOR 2.0f
+#define LOAD_FACTOR 0.5f
+#define INITIAL_CAPACITY 1
 
 /* hash function using linear probing */
 size_t hashTable(void *data, size_t datalen, size_t bucketCount,
@@ -57,12 +56,6 @@ void updateMappingValue(Mapping *mapping, void *value, size_t valuelen) {
     mapping->valuelen = valuelen;
   }
   memcpy(mapping->value, value, valuelen);
-}
-
-size_t hashMappingTable(Mapping *mapping, size_t bucketCount, uint32_t attempt);
-size_t hashMappingTable(Mapping *mapping, size_t bucketCount,
-                        uint32_t attempt) {
-  return (hashTable(mapping->key, mapping->keylen, bucketCount, attempt));
 }
 
 float currentLoadTable(Table *table);
@@ -121,21 +114,15 @@ size_t getMappingIndexTable(Table *table, void *key, size_t keylen) {
     // If the mapping does not exist yet
     if (!m.existent) {
       return (index);
-    }
-    // If the mapping exists
-    else {
-      // If the keys match
-      if (keylen == m.keylen && memcmp(m.key, key, keylen) == 0) {
-        return (index);
-      } else {
-        if (attempt <= table->mappingCapacity) {
-          // Just continue with next attempt
-          attempt++;
-        } else {
-          // Once we've iterated through all possibilities
-          FATAL("Table lookup failed");
-        }
-      }
+    } else if (keylen == m.keylen && memcmp(m.key, key, keylen) == 0) {
+      // If the mapping exists and keys match
+      return (index);
+    } else if (attempt <= table->mappingCapacity) {
+      // If there is another attempt availaible
+      attempt++;
+    } else {
+      // Once we've iterated through all possibilities
+      FATAL("Table lookup failed");
     }
   }
 }
@@ -143,6 +130,7 @@ size_t getMappingIndexTable(Table *table, void *key, size_t keylen) {
 void putTable(Table *table, void *key, size_t keylen, void *value,
               size_t valuelen) {
   size_t index = getMappingIndexTable(table, key, keylen);
+  printf("INSERT mapping @ %zu\n", index);
   Mapping *m = &table->mappings[index];
   // If m exists, just update it
   if (m->existent) {
@@ -156,7 +144,7 @@ void putTable(Table *table, void *key, size_t keylen, void *value,
   // If the load on table is greater than what it should be
   if (currentLoadTable(table) > LOAD_FACTOR) {
     // expand the size of this table
-    resizeTable(table, (size_t)((float)table->mappingCapacity * EXPAND_FACTOR));
+    resizeTable(table, table->mappingCapacity*2);
   }
   return;
 }
@@ -168,7 +156,7 @@ void delTable(Table *table, void *key, size_t keylen) {
   if (m->existent) {
     freeMapping(m);
   }
-  printf("mapping successfully inserted");
+  printf("mapping successfully deleted");
 }
 
 size_t getValueLengthTable(Table *table, void *key, size_t keylen) {
