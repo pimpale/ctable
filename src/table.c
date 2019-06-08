@@ -6,17 +6,9 @@
 #include "hash.h"
 #include "table.h"
 
-#define LOAD_FACTOR 0.5f
+#define MIN_LOAD_FACTOR 0.05f
+#define MAX_LOAD_FACTOR 0.2f
 #define INITIAL_CAPACITY 1
-
-/* hash function using linear probing */
-size_t hashTable(void *data, size_t datalen, size_t bucketCount,
-                 uint32_t attempt);
-
-size_t hashTable(void *data, size_t datalen, size_t bucketCount,
-                 uint32_t attempt) {
-  return simpleHash(attempt, data, datalen) % bucketCount;
-}
 
 /* Initializes a mapping data structure */
 void initMapping(Mapping *mapping, void *key, size_t keylen, void *value,
@@ -108,8 +100,8 @@ size_t getMappingIndexTable(Table *table, void *key, size_t keylen) {
   uint32_t attempt = 0;
   // Double hashing algorithm
   while (true) {
-    // Calculate index, increment attempt
-    size_t index = hashTable(key, keylen, table->mappingCapacity, attempt);
+    // Calculate index
+    size_t index = simpleHash(attempt, key, keylen) % table->mappingCapacity;
     Mapping m = table->mappings[index];
     // If the mapping does not exist yet
     if (!m.existent) {
@@ -130,7 +122,6 @@ size_t getMappingIndexTable(Table *table, void *key, size_t keylen) {
 void putTable(Table *table, void *key, size_t keylen, void *value,
               size_t valuelen) {
   size_t index = getMappingIndexTable(table, key, keylen);
-  printf("INSERT mapping @ %zu\n", index);
   Mapping *m = &table->mappings[index];
   // If m exists, just update it
   if (m->existent) {
@@ -142,9 +133,9 @@ void putTable(Table *table, void *key, size_t keylen, void *value,
   }
 
   // If the load on table is greater than what it should be
-  if (currentLoadTable(table) > LOAD_FACTOR) {
+  if (currentLoadTable(table) > MAX_LOAD_FACTOR) {
     // expand the size of this table
-    resizeTable(table, table->mappingCapacity*2);
+    resizeTable(table, table->mappingCapacity * 2);
   }
   return;
 }
@@ -156,7 +147,11 @@ void delTable(Table *table, void *key, size_t keylen) {
   if (m->existent) {
     freeMapping(m);
   }
-  printf("mapping successfully deleted");
+
+  if (currentLoadTable(table) < MIN_LOAD_FACTOR &&
+      currentLoadTable(table) * 2 < MAX_LOAD_FACTOR) {
+    resizeTable(table, table->mappingCapacity / 2);
+  }
 }
 
 size_t getValueLengthTable(Table *table, void *key, size_t keylen) {
