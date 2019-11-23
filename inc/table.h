@@ -30,7 +30,7 @@ void initTableCapacity(Table *table, size_t capacity);
 /* Delete the table */
 void freeTable(Table *table);
 
-/* 
+/*
  * Puts a Mapping in the table, creating one if it doesnt exist. If value is
  * null, will set valuelen
  */

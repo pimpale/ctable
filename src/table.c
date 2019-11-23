@@ -1,10 +1,17 @@
+#include "table.h"
+
 #include <stdbool.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "constants.h"
 #include "hash.h"
-#include "table.h"
+
+#define FATAL(x)        \
+  do {                  \
+    fprintf(stderr, x); \
+    exit(EXIT_FAILURE); \
+  } while (0)
 
 #define MIN_LOAD_FACTOR 0.05f
 #define MAX_LOAD_FACTOR 0.2f

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include "table.h"
 
 int main() {
@@ -18,14 +19,13 @@ int main() {
     putTable(&t, key, keylen, value, valuelen);
   }
 
-  for(int i = 500; i < 600; i++) {
+  for (int i = 500; i < 600; i++) {
     char key[400];
     snprintf(key, 400, "qwertyuiop%d", i);
     size_t keylen = strlen(key) + 1;
     printf("attempting to delete key %s\n", key);
     delTable(&t, key, keylen);
   }
-
 
   puts("ok");
 
